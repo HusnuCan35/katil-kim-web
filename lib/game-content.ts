@@ -163,5 +163,10 @@ export const CASE_1 = {
                 type: 'ANALYSIS'
             }
         }
-    ] as EvidenceCombination[]
+    ] as EvidenceCombination[],
+    solution: {
+        killer_id: 's3',
+        killer_name: 'Yeğen',
+        motive: 'Kumar borçlarını ödemek için amcasını zehirledi.'
+    }
 };

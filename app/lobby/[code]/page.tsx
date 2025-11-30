@@ -132,7 +132,10 @@ export default function LobbyPage() {
 
         const { error } = await supabase
             .from('rooms')
-            .update({ status: 'INVESTIGATION' })
+            .update({
+                status: 'INVESTIGATION',
+                started_at: new Date().toISOString()
+            })
             .eq('id', room.id);
 
         if (error) {

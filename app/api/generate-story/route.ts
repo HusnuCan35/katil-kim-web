@@ -69,7 +69,12 @@ export async function POST(req: Request) {
                         "type": "ANALYSIS"
                     }
                 }
-            ]
+            ],
+            "solution": {
+                "killer_id": "s3",
+                "killer_name": "Yeğen",
+                "motive": "Kumar borçları yüzünden mirasa konmak istedi."
+            }
         }
 
         Requirements:

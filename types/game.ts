@@ -62,6 +62,11 @@ export interface Case {
     clues: Clue[];
     timeline_events: TimelineEvent[];
     evidence_combinations: EvidenceCombination[];
+    solution: {
+        killer_id: string;
+        killer_name: string;
+        motive: string;
+    };
 }
 
 export interface Clue {
