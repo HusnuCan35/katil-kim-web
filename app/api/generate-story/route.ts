@@ -9,7 +9,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'GEMINI_API_KEY is not set' }, { status: 500 });
         }
 
-        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
 
         const prompt = `
         You are a master murder mystery writer. Create a unique, solvable murder mystery case for a 2-player co-op game.
