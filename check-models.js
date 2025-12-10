@@ -1,6 +1,11 @@
+require('dotenv').config({ path: '.env.local' });
 const https = require('https');
 
-const API_KEY = 'AIzaSyDJxZdd1F-YkylUv3CemPQTzSUikk8Q8-U';
+const API_KEY = process.env.GEMINI_API_KEY;
+if (!API_KEY) {
+    console.error('Error: GEMINI_API_KEY not found in .env.local');
+    process.exit(1);
+}
 const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`;
 
 https.get(url, (res) => {

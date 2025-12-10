@@ -6,6 +6,9 @@ import { supabase } from '@/lib/supabase';
 import { CASE_1 } from '@/lib/game-content';
 import { Clue, Role, Room, Question, TimelineEvent } from '@/types/game';
 import { Loader2, Lock, Unlock, MessageSquare, Clock, ChevronUp, ChevronDown, CheckCircle2, FlaskConical, Plus, User, LogOut } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { fadeIn, scaleUp, slideUp, containerStagger, listItem } from '@/lib/animations';
+import { useSound } from '@/hooks/use-sound';
 
 const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -15,6 +18,7 @@ const formatTime = (seconds: number) => {
 
 export default function GamePage() {
     const { code } = useParams();
+    const { playSound } = useSound();
     const [role, setRole] = useState<Role | null>(null);
     const [myClues, setMyClues] = useState<Clue[]>([]);
     const [sharedClues, setSharedClues] = useState<Clue[]>([]);
@@ -242,10 +246,27 @@ export default function GamePage() {
         setShowAccuseModal(false);
     };
 
-    if (loading) return <div className="flex h-screen items-center justify-center bg-neutral-950 text-white"><Loader2 className="animate-spin" /></div>;
+    if (loading) {
+        return (
+            <motion.div
+                variants={fadeIn}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="min-h-screen bg-neutral-950 flex items-center justify-center"
+            >
+                <Loader2 className="w-8 h-8 text-red-600 animate-spin" />
+            </motion.div>
+        );
+    }
 
     return (
-        <main className="min-h-screen bg-neutral-950 text-neutral-100 p-4 md:p-8">
+        <motion.main
+            variants={fadeIn}
+            initial="hidden"
+            animate="visible"
+            className="min-h-screen bg-neutral-950 text-neutral-100 p-4 md:p-8"
+        >
             {/* Header */}
             <header className="flex justify-between items-center mb-8 bg-neutral-900/50 p-4 rounded-2xl border border-neutral-800 backdrop-blur-sm sticky top-4 z-40 shadow-xl">
                 <div className="flex items-center gap-4">
@@ -281,25 +302,33 @@ export default function GamePage() {
                             <User className="w-5 h-5" />
                             Şüpheliler
                         </h2>
-                        <div className="space-y-3">
+                        <motion.div
+                            variants={containerStagger}
+                            initial="hidden"
+                            animate="visible"
+                            className="space-y-3"
+                        >
                             {shuffledSuspects.map((suspect: any) => (
-                                <button
+                                <motion.button
+                                    variants={listItem}
                                     key={suspect.id}
                                     onClick={() => {
+                                        playSound('click');
                                         setSelectedSuspectForInterrogation(suspect);
                                         setShowInterrogationModal(true);
                                         setActiveTab('Sorgu');
                                     }}
                                     className="w-full text-left p-4 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-600 transition-all group"
+                                    onMouseEnter={() => playSound('hover')}
                                 >
                                     <div className="flex justify-between items-center">
                                         <span className="font-bold group-hover:text-red-500 transition-colors">{suspect.name}</span>
                                         <MessageSquare className="w-4 h-4 text-neutral-600 group-hover:text-red-500" />
                                     </div>
                                     <p className="text-xs text-neutral-500 mt-1 line-clamp-1">{suspect.bio}</p>
-                                </button>
+                                </motion.button>
                             ))}
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
 
@@ -462,8 +491,12 @@ export default function GamePage() {
 
                         <div className="mt-8 flex justify-center">
                             <button
-                                onClick={() => setShowAccuseModal(true)}
+                                onClick={() => {
+                                    playSound('click');
+                                    setShowAccuseModal(true);
+                                }}
                                 className="bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-8 rounded-xl shadow-lg shadow-red-900/20 transition-all transform hover:scale-105"
+                                onMouseEnter={() => playSound('hover')}
                             >
                                 KATİLİ SUÇLA
                             </button>
@@ -527,323 +560,380 @@ export default function GamePage() {
             </div>
 
             {/* Keypad Modal */}
-            {showKeypadModal && selectedClueForUnlock && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 max-w-sm w-full">
-                        <div className="text-center mb-6">
-                            <h2 className="text-2xl font-bold text-red-500">Şifre Girin</h2>
-                            <p className="text-neutral-500 text-sm mt-1">{selectedClueForUnlock.title}</p>
-                        </div>
+            <AnimatePresence>
+                {showKeypadModal && selectedClueForUnlock && (
+                    <motion.div
+                        variants={fadeIn}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+                    >
+                        <motion.div
+                            variants={scaleUp}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                            className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 max-w-sm w-full"
+                        >
+                            <div className="text-center mb-6">
+                                <h2 className="text-2xl font-bold text-red-500">Şifre Girin</h2>
+                                <p className="text-neutral-500 text-sm mt-1">{selectedClueForUnlock.title}</p>
+                            </div>
 
-                        <div className="bg-neutral-950 p-4 rounded-xl mb-6 text-center">
-                            <span className="text-3xl font-mono tracking-[0.5em] text-white">
-                                {keypadInput.padEnd(4, '_')}
-                            </span>
-                        </div>
+                            <div className="bg-neutral-950 p-4 rounded-xl mb-6 text-center">
+                                <span className="text-3xl font-mono tracking-[0.5em] text-white">
+                                    {keypadInput.padEnd(4, '_')}
+                                </span>
+                            </div>
 
-                        <div className="grid grid-cols-3 gap-3 mb-4">
-                            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+                            <div className="grid grid-cols-3 gap-3 mb-4">
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+                                    <button
+                                        key={num}
+                                        onClick={() => setKeypadInput(prev => (prev.length < 4 ? prev + num : prev))}
+                                        className="p-4 bg-neutral-800 hover:bg-neutral-700 rounded-xl text-xl font-bold transition-colors"
+                                    >
+                                        {num}
+                                    </button>
+                                ))}
                                 <button
-                                    key={num}
-                                    onClick={() => setKeypadInput(prev => (prev.length < 4 ? prev + num : prev))}
+                                    onClick={() => setKeypadInput('')}
+                                    className="p-4 bg-red-900/30 hover:bg-red-900/50 text-red-400 rounded-xl font-bold transition-colors"
+                                >
+                                    C
+                                </button>
+                                <button
+                                    onClick={() => setKeypadInput(prev => (prev.length < 4 ? prev + 0 : prev))}
                                     className="p-4 bg-neutral-800 hover:bg-neutral-700 rounded-xl text-xl font-bold transition-colors"
                                 >
-                                    {num}
+                                    0
                                 </button>
-                            ))}
-                            <button
-                                onClick={() => setKeypadInput('')}
-                                className="p-4 bg-red-900/30 hover:bg-red-900/50 text-red-400 rounded-xl font-bold transition-colors"
-                            >
-                                C
-                            </button>
-                            <button
-                                onClick={() => setKeypadInput(prev => (prev.length < 4 ? prev + 0 : prev))}
-                                className="p-4 bg-neutral-800 hover:bg-neutral-700 rounded-xl text-xl font-bold transition-colors"
-                            >
-                                0
-                            </button>
+                                <button
+                                    onClick={() => {
+                                        if (keypadInput === selectedClueForUnlock.locked_with_code) {
+                                            // Unlock logic
+                                            const updatedClues = myClues.map(c =>
+                                                c.id === selectedClueForUnlock.id
+                                                    ? { ...c, is_locked: false, description: 'ŞİFRE ÇÖZÜLDÜ: Mesajlarda "Borcu bu gece ödeyeceğim, merak etme" yazıyor.' }
+                                                    : c
+                                            );
+                                            setMyClues(updatedClues);
+                                            setShowKeypadModal(false);
+                                            setKeypadInput('');
+                                            alert('Şifre Doğru! İpucu açıldı.');
+                                        } else {
+                                            alert('Yanlış Şifre!');
+                                            setKeypadInput('');
+                                        }
+                                    }}
+                                    className="p-4 bg-green-600 hover:bg-green-700 rounded-xl font-bold transition-colors"
+                                >
+                                    OK
+                                </button>
+                            </div>
+
                             <button
                                 onClick={() => {
-                                    if (keypadInput === selectedClueForUnlock.locked_with_code) {
-                                        // Unlock logic
-                                        const updatedClues = myClues.map(c =>
-                                            c.id === selectedClueForUnlock.id
-                                                ? { ...c, is_locked: false, description: 'ŞİFRE ÇÖZÜLDÜ: Mesajlarda "Borcu bu gece ödeyeceğim, merak etme" yazıyor.' }
-                                                : c
-                                        );
-                                        setMyClues(updatedClues);
-                                        setShowKeypadModal(false);
-                                        setKeypadInput('');
-                                        alert('Şifre Doğru! İpucu açıldı.');
-                                    } else {
-                                        alert('Yanlış Şifre!');
-                                        setKeypadInput('');
-                                    }
+                                    setShowKeypadModal(false);
+                                    setKeypadInput('');
                                 }}
-                                className="p-4 bg-green-600 hover:bg-green-700 rounded-xl font-bold transition-colors"
+                                className="w-full py-3 text-neutral-500 hover:text-white transition-colors"
                             >
-                                OK
+                                Kapat
                             </button>
-                        </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
-                        <button
-                            onClick={() => {
-                                setShowKeypadModal(false);
-                                setKeypadInput('');
-                            }}
-                            className="w-full py-3 text-neutral-500 hover:text-white transition-colors"
+            {/* Interrogation Modal */}
+            <AnimatePresence>
+                {showInterrogationModal && selectedSuspectForInterrogation && (
+                    <motion.div
+                        variants={fadeIn}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+                    >
+                        <motion.div
+                            variants={scaleUp}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                            className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 max-w-lg w-full h-[600px] flex flex-col"
                         >
-                            Kapat
-                        </button>
-                    </div>
-                </div>
-            )}
-
-            {/* Interrogation Modal */}                    {showInterrogationModal && selectedSuspectForInterrogation && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 max-w-lg w-full h-[600px] flex flex-col">
-                        <div className="flex justify-between items-center border-b border-neutral-800 pb-4 mb-4">
-                            <div>
-                                <h2 className="text-2xl font-bold text-red-500">{selectedSuspectForInterrogation.name}</h2>
-                                <p className="text-xs text-neutral-500">Dosya No: #{selectedSuspectForInterrogation.id.toUpperCase()}</p>
-                            </div>
-                            <button
-                                onClick={() => setShowInterrogationModal(false)}
-                                className="text-neutral-400 hover:text-white"
-                            >
-                                X
-                            </button>
-                        </div>
-
-                        {/* Tabs */}
-                        <div className="flex gap-2 mb-4 border-b border-neutral-800">
-                            {['Profil', 'İlişkiler', 'Sorgu'].map(tab => (
+                            <div className="flex justify-between items-center border-b border-neutral-800 pb-4 mb-4">
+                                <div>
+                                    <h2 className="text-2xl font-bold text-red-500">{selectedSuspectForInterrogation.name}</h2>
+                                    <p className="text-xs text-neutral-500">Dosya No: #{selectedSuspectForInterrogation.id.toUpperCase()}</p>
+                                </div>
                                 <button
-                                    key={tab}
-                                    onClick={() => setActiveTab(tab)}
-                                    className={`px-4 py-2 text-sm font-bold transition-colors ${activeTab === tab
-                                        ? 'text-red-500 border-b-2 border-red-500'
-                                        : 'text-neutral-500 hover:text-neutral-300'
-                                        }`}
+                                    onClick={() => setShowInterrogationModal(false)}
+                                    className="text-neutral-400 hover:text-white"
                                 >
-                                    {tab}
+                                    X
                                 </button>
-                            ))}
-                        </div>
+                            </div>
 
-                        <div className="flex-1 overflow-y-auto p-2">
-                            {activeTab === 'Profil' && (
-                                <div className="space-y-4">
-                                    <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800">
-                                        <h3 className="text-sm font-bold text-neutral-400 mb-2">Özet</h3>
-                                        <p className="text-neutral-200">{selectedSuspectForInterrogation.bio}</p>
-                                    </div>
-                                    <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800">
-                                        <h3 className="text-sm font-bold text-neutral-400 mb-2">Detaylı Biyografi</h3>
-                                        <p className="text-neutral-300 text-sm leading-relaxed">{selectedSuspectForInterrogation.detailed_bio}</p>
-                                    </div>
-                                    <div className="bg-red-900/20 p-4 rounded-xl border border-red-900/30">
-                                        <h3 className="text-sm font-bold text-red-400 mb-2">Olası Motivasyon</h3>
-                                        <p className="text-red-200 text-sm italic">{selectedSuspectForInterrogation.motive || 'Bilinmiyor.'}</p>
-                                    </div>
-                                </div>
-                            )}
+                            {/* Tabs */}
+                            <div className="flex gap-2 mb-4 border-b border-neutral-800">
+                                {['Profil', 'İlişkiler', 'Sorgu'].map(tab => (
+                                    <button
+                                        key={tab}
+                                        onClick={() => setActiveTab(tab)}
+                                        className={`px-4 py-2 text-sm font-bold transition-colors ${activeTab === tab
+                                            ? 'text-red-500 border-b-2 border-red-500'
+                                            : 'text-neutral-500 hover:text-neutral-300'
+                                            }`}
+                                    >
+                                        {tab}
+                                    </button>
+                                ))}
+                            </div>
 
-                            {activeTab === 'İlişkiler' && (
-                                <div className="space-y-3">
-                                    {selectedSuspectForInterrogation.relationships?.map((rel: any, idx: number) => (
-                                        <div key={idx} className="flex items-start gap-3 bg-neutral-950 p-3 rounded-xl border border-neutral-800">
-                                            <div className="bg-neutral-800 p-2 rounded-lg">
-                                                <span className="text-xs font-bold text-neutral-400">Hedef</span>
-                                                <div className="font-bold">{CASE_1.suspects.find(s => s.id === rel.target_id)?.name || rel.target_id}</div>
-                                            </div>
-                                            <div>
-                                                <div className="text-sm font-bold text-red-400">{rel.type}</div>
-                                                <p className="text-xs text-neutral-400">{rel.description}</p>
-                                            </div>
+                            <div className="flex-1 overflow-y-auto p-2">
+                                {activeTab === 'Profil' && (
+                                    <div className="space-y-4">
+                                        <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800">
+                                            <h3 className="text-sm font-bold text-neutral-400 mb-2">Özet</h3>
+                                            <p className="text-neutral-200">{selectedSuspectForInterrogation.bio}</p>
                                         </div>
-                                    ))}
-                                    {(!selectedSuspectForInterrogation.relationships || selectedSuspectForInterrogation.relationships.length === 0) && (
-                                        <p className="text-neutral-500 text-center mt-10">Bilinen bir ilişkisi yok.</p>
-                                    )}
-                                </div>
-                            )}
+                                        <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800">
+                                            <h3 className="text-sm font-bold text-neutral-400 mb-2">Detaylı Biyografi</h3>
+                                            <p className="text-neutral-300 text-sm leading-relaxed">{selectedSuspectForInterrogation.detailed_bio}</p>
+                                        </div>
+                                        <div className="bg-red-900/20 p-4 rounded-xl border border-red-900/30">
+                                            <h3 className="text-sm font-bold text-red-400 mb-2">Olası Motivasyon</h3>
+                                            <p className="text-red-200 text-sm italic">{selectedSuspectForInterrogation.motive || 'Bilinmiyor.'}</p>
+                                        </div>
+                                    </div>
+                                )}
 
-                            {activeTab === 'Sorgu' && (
-                                <>
-                                    <div className="h-[300px] overflow-y-auto space-y-4 mb-4 p-2 bg-neutral-950/50 rounded-xl border border-neutral-800">
-                                        {interrogationLog.map((log, index) => (
-                                            <div key={index} className="space-y-2">
-                                                <div className="flex justify-end">
-                                                    <div className="bg-red-900/40 text-red-100 px-4 py-2 rounded-2xl rounded-tr-none max-w-[80%] text-sm">
-                                                        {log.question}
-                                                    </div>
+                                {activeTab === 'İlişkiler' && (
+                                    <div className="space-y-3">
+                                        {selectedSuspectForInterrogation.relationships?.map((rel: any, idx: number) => (
+                                            <div key={idx} className="flex items-start gap-3 bg-neutral-950 p-3 rounded-xl border border-neutral-800">
+                                                <div className="bg-neutral-800 p-2 rounded-lg">
+                                                    <span className="text-xs font-bold text-neutral-400">Hedef</span>
+                                                    <div className="font-bold">{CASE_1.suspects.find(s => s.id === rel.target_id)?.name || rel.target_id}</div>
                                                 </div>
-                                                <div className="flex justify-start">
-                                                    <div className="bg-neutral-800 text-neutral-300 px-4 py-2 rounded-2xl rounded-tl-none max-w-[80%] text-sm">
-                                                        {log.response}
-                                                    </div>
+                                                <div>
+                                                    <div className="text-sm font-bold text-red-400">{rel.type}</div>
+                                                    <p className="text-xs text-neutral-400">{rel.description}</p>
                                                 </div>
                                             </div>
                                         ))}
-                                        {interrogationLog.length === 0 && (
-                                            <div className="text-center text-neutral-600 mt-10 text-sm">
-                                                <p>Sorguya başlamak için bir soru seçin.</p>
-                                            </div>
+                                        {(!selectedSuspectForInterrogation.relationships || selectedSuspectForInterrogation.relationships.length === 0) && (
+                                            <p className="text-neutral-500 text-center mt-10">Bilinen bir ilişkisi yok.</p>
                                         )}
                                     </div>
+                                )}
 
-                                    <div className="space-y-2 pt-4 border-t border-neutral-800">
-                                        <p className="text-xs font-bold text-neutral-500 uppercase">Sorular</p>
-                                        <div className="grid gap-2">
-                                            {selectedSuspectForInterrogation.dialogues.map((q: Question) => (
-                                                <button
-                                                    key={q.id}
-                                                    onClick={() => {
-                                                        setInterrogationLog([...interrogationLog, { question: q.text, response: q.response }]);
-                                                    }}
-                                                    className="text-left text-xs p-3 bg-neutral-950 hover:bg-neutral-800 border border-neutral-800 rounded-lg transition-colors"
-                                                >
-                                                    {q.text}
-                                                </button>
+                                {activeTab === 'Sorgu' && (
+                                    <>
+                                        <div className="h-[300px] overflow-y-auto space-y-4 mb-4 p-2 bg-neutral-950/50 rounded-xl border border-neutral-800">
+                                            {interrogationLog.map((log, index) => (
+                                                <div key={index} className="space-y-2">
+                                                    <div className="flex justify-end">
+                                                        <div className="bg-red-900/40 text-red-100 px-4 py-2 rounded-2xl rounded-tr-none max-w-[80%] text-sm">
+                                                            {log.question}
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex justify-start">
+                                                        <div className="bg-neutral-800 text-neutral-300 px-4 py-2 rounded-2xl rounded-tl-none max-w-[80%] text-sm">
+                                                            {log.response}
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             ))}
+                                            {interrogationLog.length === 0 && (
+                                                <div className="text-center text-neutral-600 mt-10 text-sm">
+                                                    <p>Sorguya başlamak için bir soru seçin.</p>
+                                                </div>
+                                            )}
                                         </div>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
+
+                                        <div className="space-y-2 pt-4 border-t border-neutral-800">
+                                            <p className="text-xs font-bold text-neutral-500 uppercase">Sorular</p>
+                                            <div className="grid gap-2">
+                                                {selectedSuspectForInterrogation.dialogues.map((q: Question) => (
+                                                    <button
+                                                        key={q.id}
+                                                        onClick={() => {
+                                                            setInterrogationLog([...interrogationLog, { question: q.text, response: q.response }]);
+                                                        }}
+                                                        className="text-left text-xs p-3 bg-neutral-950 hover:bg-neutral-800 border border-neutral-800 rounded-lg transition-colors"
+                                                    >
+                                                        {q.text}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Accusation Modal */}
-            {showAccuseModal && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 max-w-lg w-full space-y-6">
-                        <div className="text-center">
-                            <h2 className="text-3xl font-bold text-red-600">KATİL KİM?</h2>
-                            <p className="text-neutral-400 mt-2">Yanlış kişiyi suçlarsan katil kaçacak!</p>
-                        </div>
+            <AnimatePresence>
+                {showAccuseModal && (
+                    <motion.div
+                        variants={fadeIn}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+                    >
+                        <motion.div
+                            variants={scaleUp}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                            className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 max-w-lg w-full space-y-6"
+                        >
+                            <div className="text-center">
+                                <h2 className="text-3xl font-bold text-red-600">KATİL KİM?</h2>
+                                <p className="text-neutral-400 mt-2">Yanlış kişiyi suçlarsan katil kaçacak!</p>
+                            </div>
 
-                        <div className="grid grid-cols-2 gap-4 mb-8">
-                            {shuffledSuspects.map((s: any) => (
-                                <button
-                                    key={s.id}
-                                    onClick={() => setSelectedSuspect(s.id)}
-                                    className={`p-4 rounded-xl border text-left transition-all relative ${selectedSuspect === s.id
-                                        ? 'bg-red-600 border-red-500 text-white'
-                                        : 'bg-neutral-800 border-neutral-700 hover:border-neutral-500'
-                                        }`}
-                                >
-                                    <span className="font-bold block">{s.name}</span>
-                                    {/* Partner's Vote Indicator */}
-                                    {Object.entries(myVotes).find(([uid, vote]) => vote === s.id && uid !== localStorage.getItem('katil_kim_name')) && (
-                                        <span className="absolute -top-2 -right-2 bg-blue-600 text-[10px] px-2 py-1 rounded-full border border-blue-400 shadow-lg z-10">
-                                            ORTAĞININ SEÇİMİ
-                                        </span>
-                                    )}
-                                </button>
-                            ))}
-                        </div>
+                            <div className="grid grid-cols-2 gap-4 mb-8">
+                                {shuffledSuspects.map((s: any) => (
+                                    <button
+                                        key={s.id}
+                                        onClick={() => setSelectedSuspect(s.id)}
+                                        className={`p-4 rounded-xl border text-left transition-all relative ${selectedSuspect === s.id
+                                            ? 'bg-red-600 border-red-500 text-white'
+                                            : 'bg-neutral-800 border-neutral-700 hover:border-neutral-500'
+                                            }`}
+                                    >
+                                        <span className="font-bold block">{s.name}</span>
+                                        {/* Partner's Vote Indicator */}
+                                        {Object.entries(myVotes).find(([uid, vote]) => vote === s.id && uid !== localStorage.getItem('katil_kim_name')) && (
+                                            <span className="absolute -top-2 -right-2 bg-blue-600 text-[10px] px-2 py-1 rounded-full border border-blue-400 shadow-lg z-10">
+                                                ORTAĞININ SEÇİMİ
+                                            </span>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
 
-                        {/* Feedback Message */}
-                        {
-                            myVotes && Object.keys(myVotes).length > 0 && (
-                                <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800 text-center">
-                                    {(() => {
-                                        const partnerRole = role === 'DETECTIVE_A' ? 'DETECTIVE_B' : 'DETECTIVE_A';
-                                        const myVoteId = myVotes?.[role as string];
-                                        const partnerVoteId = myVotes?.[partnerRole];
+                            {/* Feedback Message */}
+                            {
+                                myVotes && Object.keys(myVotes).length > 0 && (
+                                    <div className="bg-neutral-950 p-4 rounded-xl border border-neutral-800 text-center">
+                                        {(() => {
+                                            const partnerRole = role === 'DETECTIVE_A' ? 'DETECTIVE_B' : 'DETECTIVE_A';
+                                            const myVoteId = myVotes?.[role as string];
+                                            const partnerVoteId = myVotes?.[partnerRole];
 
-                                        if (myVoteId && partnerVoteId && myVoteId !== partnerVoteId) {
-                                            const mySuspect = CASE_1.suspects.find(s => s.id === myVoteId)?.name;
-                                            const partnerSuspect = CASE_1.suspects.find(s => s.id === partnerVoteId)?.name;
-                                            return (
-                                                <div className="space-y-1">
-                                                    <p className="text-red-400 font-bold">ANLAŞMAZLIK!</p>
-                                                    <p className="text-sm text-neutral-400">
-                                                        Sen <span className="text-white font-bold">{mySuspect}</span> dedin,
-                                                        ortağın <span className="text-blue-400 font-bold">{partnerSuspect}</span> dedi.
+                                            if (myVoteId && partnerVoteId && myVoteId !== partnerVoteId) {
+                                                const mySuspect = CASE_1.suspects.find(s => s.id === myVoteId)?.name;
+                                                const partnerSuspect = CASE_1.suspects.find(s => s.id === partnerVoteId)?.name;
+                                                return (
+                                                    <div className="space-y-1">
+                                                        <p className="text-red-400 font-bold">ANLAŞMAZLIK!</p>
+                                                        <p className="text-sm text-neutral-400">
+                                                            Sen <span className="text-white font-bold">{mySuspect}</span> dedin,
+                                                            ortağın <span className="text-blue-400 font-bold">{partnerSuspect}</span> dedi.
+                                                        </p>
+                                                        <p className="text-xs text-neutral-500 mt-2">Aynı kişiyi seçmeden oyun bitmez!</p>
+                                                    </div>
+                                                );
+                                            } else if (partnerVoteId && !myVoteId) {
+                                                return (
+                                                    <p className="text-sm text-blue-400">
+                                                        Ortağın oyunu kullandı. Şimdi sıra sende!
                                                     </p>
-                                                    <p className="text-xs text-neutral-500 mt-2">Aynı kişiyi seçmeden oyun bitmez!</p>
-                                                </div>
-                                            );
-                                        } else if (partnerVoteId && !myVoteId) {
-                                            return (
-                                                <p className="text-sm text-blue-400">
-                                                    Ortağın oyunu kullandı. Şimdi sıra sende!
-                                                </p>
-                                            );
-                                        } else if (myVoteId && !partnerVoteId) {
-                                            return (
-                                                <p className="text-sm text-neutral-400">
-                                                    Oyun kullanıldı. Ortağını bekle...
-                                                </p>
-                                            );
-                                        }
-                                        return null;
-                                    })()}
-                                </div>
-                            )
-                        }
+                                                );
+                                            } else if (myVoteId && !partnerVoteId) {
+                                                return (
+                                                    <p className="text-sm text-neutral-400">
+                                                        Oyun kullanıldı. Ortağını bekle...
+                                                    </p>
+                                                );
+                                            }
+                                            return null;
+                                        })()}
+                                    </div>
+                                )
+                            }
 
-                        <div className="flex gap-3 pt-4">
-                            <button
-                                onClick={() => {
-                                    setShowAccuseModal(false);
-                                    setSelectedSuspect(null);
-                                }}
-                                className="flex-1 py-3 font-semibold bg-neutral-800 hover:bg-neutral-700 rounded-xl transition-colors"
-                            >
-                                İptal
-                            </button>
-                            <button
-                                onClick={handleAccusation}
-                                disabled={!selectedSuspect}
-                                className="flex-1 py-3 font-semibold bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-colors"
-                            >
-                                {myVotes && Object.keys(myVotes).length > 0 ? 'Oyu Değiştir / Onayla' : 'Suçla'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+                            <div className="flex gap-3 pt-4">
+                                <button
+                                    onClick={() => {
+                                        setShowAccuseModal(false);
+                                        setSelectedSuspect(null);
+                                    }}
+                                    className="flex-1 py-3 font-semibold bg-neutral-800 hover:bg-neutral-700 rounded-xl transition-colors"
+                                >
+                                    İptal
+                                </button>
+                                <button
+                                    onClick={handleAccusation}
+                                    disabled={!selectedSuspect}
+                                    className="flex-1 py-3 font-semibold bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-colors"
+                                >
+                                    {myVotes && Object.keys(myVotes).length > 0 ? 'Oyu Değiştir / Onayla' : 'Suçla'}
+                                </button>
+                            </div>
+                        </motion.div >
+                    </motion.div >
+                )
+                }
+            </AnimatePresence >
 
             {/* Game Over / Win Modal */}
-            {
-                gameState !== 'PLAYING' && (
-                    <div className="fixed inset-0 bg-black/95 flex items-center justify-center p-4 z-50">
-                        <div className="text-center space-y-6 max-w-2xl">
-                            {gameState === 'WON' ? (
-                                <>
-                                    <h1 className="text-6xl font-black text-green-500 tracking-tighter mb-4">TEBRİKLER!</h1>
-                                    <p className="text-2xl text-neutral-300">Katili başarıyla yakaladınız.</p>
-                                    <div className="p-6 bg-neutral-900 rounded-2xl border border-green-900/30">
-                                        <p className="text-lg">Katil <span className="font-bold text-green-400">{gameCase.solution.killer_name}</span> idi.</p>
-                                        <p className="text-neutral-400 mt-2">{gameCase.solution.motive}</p>
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    <h1 className="text-6xl font-black text-red-600 tracking-tighter mb-4">OYUN BİTTİ</h1>
-                                    <p className="text-2xl text-neutral-300">Yanlış kişiyi suçladınız. Katil kaçtı!</p>
-                                    <div className="p-6 bg-neutral-900 rounded-2xl border border-red-900/30">
-                                        <p className="text-lg">Gerçek katil <span className="font-bold text-red-500">{gameCase.solution.killer_name}</span> idi.</p>
-                                    </div>
-                                </>
-                            )}
-
-                            <button
-                                onClick={() => window.location.href = '/'}
-                                className="mt-8 px-8 py-4 bg-white text-black font-bold rounded-xl hover:bg-neutral-200 transition-colors"
+            <AnimatePresence>
+                {
+                    gameState !== 'PLAYING' && (
+                        <motion.div
+                            variants={fadeIn}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                            className="fixed inset-0 bg-black/95 flex items-center justify-center p-4 z-50"
+                        >
+                            <motion.div
+                                variants={scaleUp}
+                                initial="hidden"
+                                animate="visible"
+                                className="text-center space-y-6 max-w-2xl"
                             >
-                                Ana Menüye Dön
-                            </button>
-                        </div>
-                    </div>
-                )
-            }
-        </main >
+                                {gameState === 'WON' ? (
+                                    <>
+                                        <h1 className="text-6xl font-black text-green-500 tracking-tighter mb-4">TEBRİKLER!</h1>
+                                        <p className="text-2xl text-neutral-300">Katili başarıyla yakaladınız.</p>
+                                        <div className="p-6 bg-neutral-900 rounded-2xl border border-green-900/30">
+                                            <p className="text-lg">Katil <span className="font-bold text-green-400">{gameCase.solution.killer_name}</span> idi.</p>
+                                            <p className="text-neutral-400 mt-2">{gameCase.solution.motive}</p>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <h1 className="text-6xl font-black text-red-600 tracking-tighter mb-4">OYUN BİTTİ</h1>
+                                        <p className="text-2xl text-neutral-300">Yanlış kişiyi suçladınız. Katil kaçtı!</p>
+                                        <div className="p-6 bg-neutral-900 rounded-2xl border border-red-900/30">
+                                            <p className="text-lg">Gerçek katil <span className="font-bold text-red-500">{gameCase.solution.killer_name}</span> idi.</p>
+                                        </div>
+                                    </>
+                                )}
+
+                                <button
+                                    onClick={() => window.location.href = '/'}
+                                    className="mt-8 px-8 py-4 bg-white text-black font-bold rounded-xl hover:bg-neutral-200 transition-colors"
+                                >
+                                    Ana Menüye Dön
+                                </button>
+                            </motion.div>
+                        </motion.div>
+                    )
+                }
+            </AnimatePresence >
+        </motion.main >
     );
 }
