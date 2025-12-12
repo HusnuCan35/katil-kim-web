@@ -1,7 +1,12 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export async function POST(req: Request) {
     try {
@@ -13,6 +18,26 @@ export async function POST(req: Request) {
 
         const prompt = `
         You are a master murder mystery writer. Create a unique, solvable murder mystery case for a 2-player co-op game.
+        
+        CRITICAL INSTRUCTION: VARY THE MURDER METHOD AND SETTING. 
+        Do NOT always use poisoning. It is overused.
+        
+        Use diverse methods such as:
+        - Blunt force trauma (statues, tools, heavy objects)
+        - Stabbing (kitchen knives, artisan tools, antique weapons)
+        - Strangulation (rope, scarf, wire)
+        - Pushing from a height / Staged accident (balcony, stairs)
+        - Drowning (pool, bathtub)
+        - Electrocution
+        - Traps
+        - Gunshot (silenced, hunting rifle)
+        
+        VARY THE MOTIVE:
+        - Jealousy / Love triangle
+        - Financial greed / Inheritance / Debt due to gambling or bad investments
+        - Revenge for a past crime or bullying
+        - Protecting a dark secret / Blackmail
+        - Professional rivalry / Intellectual property theft
         
         The output MUST be a valid JSON object matching this structure exactly. Do not include markdown formatting like \`\`\`json. Just the raw JSON.
         
@@ -84,6 +109,7 @@ export async function POST(req: Request) {
         4. Create 2 evidence combinations that reveal critical info.
         5. The mystery must be solvable by logic.
         6. Language: Turkish.
+        7. Ensure the story is coherent and the clues logically point to the killer.
         `;
 
         const result = await model.generateContent(prompt);
@@ -94,6 +120,20 @@ export async function POST(req: Request) {
         const cleanJson = text.replace(/```json/g, '').replace(/```/g, '').trim();
 
         const caseData = JSON.parse(cleanJson);
+
+        // Save to Database
+        const { error: insertError } = await supabase
+            .from('stories')
+            .insert({
+                title: caseData.title || 'Bilinmeyen Vaka',
+                content: caseData,
+                source: 'AI'
+            });
+
+        if (insertError) {
+            console.error("Failed to save story to DB:", insertError);
+            // We don't block the response, but we log the error
+        }
 
         return NextResponse.json({ success: true, caseData });
     } catch (error) {

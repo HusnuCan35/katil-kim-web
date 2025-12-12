@@ -168,8 +168,8 @@ export default function LobbyPage() {
 
                 <div className="space-y-4">
                     <div className="flex items-center justify-between text-sm text-neutral-500 uppercase tracking-wider px-2">
-                        <span>Oyuncular ({players.length}/2)</span>
-                        {players.length < 2 && <span className="animate-pulse text-red-500">Bekleniyor...</span>}
+                        <span>Oyuncular ({players.length}/4)</span>
+                        {players.length < 4 && <span className="animate-pulse text-red-500">Bekleniyor...</span>}
                     </div>
 
                     <div className="grid gap-3">
@@ -205,7 +205,7 @@ export default function LobbyPage() {
                 {currentUserRole === 'DETECTIVE_A' && (
                     <button
                         onClick={startGame}
-                        disabled={players.length < 2}
+                        disabled={players.length < 1}
                         className="w-full py-4 bg-red-600 hover:bg-red-700 disabled:bg-neutral-800 disabled:text-neutral-500 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2"
                     >
                         <Play className="fill-current" />

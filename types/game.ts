@@ -86,3 +86,13 @@ export interface GameState {
     unlocked_clues: string[]; // Clue IDs
     current_turn?: Role; // If we want turn-based, otherwise realtime
 }
+
+export interface Message {
+    id: string;
+    room_id: string;
+    player_id: string | null;
+    player_name: string;
+    content: string;
+    created_at: string;
+    is_system?: boolean;
+}

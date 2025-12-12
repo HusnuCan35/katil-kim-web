@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { Loader2, Search, Plus, Sparkles } from 'lucide-react';
+import { Loader2, Search, Plus, Sparkles, LogIn, LogOut, User } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Home() {
   const router = useRouter();
@@ -13,6 +14,42 @@ export default function Home() {
   const [joinCode, setJoinCode] = useState('');
   const [username, setUsername] = useState('');
 
+  // Auth State
+  const [session, setSession] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setSession(session);
+
+      if (session?.user) {
+        // Fetch Profile
+        const { data } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        if (data) {
+          setProfile(data);
+          setUsername(data.username);
+        }
+      }
+      setAuthLoading(false);
+    };
+
+    checkUser();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setSession(null);
+    setProfile(null);
+    setUsername('');
+  };
+
   const createRoom = async () => {
     if (!username.trim()) {
       alert('Lütfen bir isim girin!');
@@ -20,32 +57,61 @@ export default function Home() {
     }
     setIsCreating(true);
     try {
-      // Generate a random 4-character code
+      // 1. Try to fetch a random story from the DB
+      let selectedCase = null;
+
+      const { count, error: countError } = await supabase
+        .from('stories')
+        .select('*', { count: 'exact', head: true });
+
+      if (!countError && count && count > 0) {
+        const randomOffset = Math.floor(Math.random() * count);
+        const { data: randomStory, error: fetchError } = await supabase
+          .from('stories')
+          .select('content')
+          .range(randomOffset, randomOffset)
+          .single();
+
+        if (!fetchError && randomStory?.content) {
+          console.log("Selected Random Story from DB");
+          selectedCase = randomStory.content;
+        }
+      }
+
+      // 2. Generate Room Code
       const code = Math.random().toString(36).substring(2, 6).toUpperCase();
 
+      // 3. Create Room (with selected case if found)
       const { data, error } = await supabase
         .from('rooms')
-        .insert([{ code, status: 'LOBBY' }])
+        .insert([{
+          code,
+          status: 'LOBBY',
+          custom_case: selectedCase // If null, game page defaults to CASE_1
+        }])
         .select()
         .single();
 
       if (error) throw error;
 
-      // Create the host player
-      const { error: playerError } = await supabase
+      const { data: playerData, error: playerError } = await supabase
         .from('players')
         .insert([{
           room_id: data.id,
           name: username,
           role: 'DETECTIVE_A',
-          is_ready: true
-        }]);
+          is_ready: true,
+          user_id: session?.user?.id // Save real user ID for stats
+        }])
+        .select()
+        .single();
 
       if (playerError) throw playerError;
 
       // Save player info
       localStorage.setItem('katil_kim_role', 'DETECTIVE_A');
       localStorage.setItem('katil_kim_name', username);
+      localStorage.setItem('katil_kim_id', playerData.id);
 
       router.push(`/lobby/${code}`);
     } catch (error) {
@@ -87,19 +153,23 @@ export default function Home() {
       if (error) throw error;
 
       // 3. Create Host
-      const { error: playerError } = await supabase
+      const { data: playerData, error: playerError } = await supabase
         .from('players')
         .insert([{
           room_id: data.id,
           name: username,
           role: 'DETECTIVE_A',
-          is_ready: true
-        }]);
+          is_ready: true,
+          user_id: session?.user?.id
+        }])
+        .select()
+        .single();
 
       if (playerError) throw playerError;
 
       localStorage.setItem('katil_kim_role', 'DETECTIVE_A');
       localStorage.setItem('katil_kim_name', username);
+      localStorage.setItem('katil_kim_id', playerData.id);
 
       router.push(`/lobby/${code}`);
     } catch (error) {
@@ -134,31 +204,51 @@ export default function Home() {
         return;
       }
 
-      // Check if room is full (max 2 players)
-      const { count } = await supabase
+      // Check existing players to determine role
+      const { data: existingPlayers, error: countError } = await supabase
         .from('players')
-        .select('*', { count: 'exact', head: true })
+        .select('role')
         .eq('room_id', room.id);
 
-      if (count && count >= 2) {
-        alert('Oda dolu!');
+      if (countError) throw countError;
+
+      const playerCount = existingPlayers?.length || 0;
+
+      if (playerCount >= 4) {
+        alert('Oda dolu! (Maksimum 4 kişi)');
         return;
       }
 
-      // Join as second player
-      const { error: playerError } = await supabase
+      // Assign role cyclically
+      let newRole = 'DETECTIVE_B';
+      const aCount = existingPlayers.filter(p => p.role === 'DETECTIVE_A').length;
+      const bCount = existingPlayers.filter(p => p.role === 'DETECTIVE_B').length;
+
+      if (aCount <= bCount) {
+        newRole = 'DETECTIVE_A';
+      } else {
+        newRole = 'DETECTIVE_B';
+      }
+
+      // Join
+      const { data: playerData, error: playerError } = await supabase
         .from('players')
         .insert([{
           room_id: room.id,
           name: username,
-          role: 'DETECTIVE_B',
-          is_ready: true
-        }]);
+          role: newRole,
+          is_ready: true,
+          user_id: session?.user?.id // Save real user ID for stats
+        }])
+        .select()
+        .single();
 
       if (playerError) throw playerError;
 
-      localStorage.setItem('katil_kim_role', 'DETECTIVE_B');
+      localStorage.setItem('katil_kim_role', newRole);
       localStorage.setItem('katil_kim_name', username);
+      localStorage.setItem('katil_kim_id', playerData.id);
+
       router.push(`/lobby/${joinCode.toUpperCase()}`);
     } catch (error) {
       console.error('Error joining room:', error);
@@ -168,8 +258,44 @@ export default function Home() {
     }
   };
 
+  if (authLoading) return (
+    <main className="flex min-h-screen items-center justify-center bg-black text-white">
+      <Loader2 className="w-8 h-8 animate-spin text-red-600" />
+    </main>
+  );
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-neutral-950 p-4 text-neutral-100">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-neutral-950 p-4 text-neutral-100 relative">
+
+      {/* Auth Header */}
+      <div className="absolute top-4 right-4 z-10">
+        {session ? (
+          <div className="flex items-center gap-2">
+            <Link href="/profile" className="flex items-center gap-4 bg-neutral-900 hover:bg-neutral-800 rounded-full pl-4 pr-2 py-2 border border-neutral-800 transition-colors">
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4 text-red-500" />
+                <span className="font-bold text-sm">{profile?.username || 'Kullanıcı'}</span>
+              </div>
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="p-3 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 rounded-full transition-colors"
+              title="Çıkış Yap"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+          <Link
+            href="/login"
+            className="flex items-center gap-2 bg-neutral-900 hover:bg-neutral-800 px-4 py-2 rounded-xl transition-colors font-bold text-sm border border-neutral-800"
+          >
+            <LogIn className="w-4 h-4" />
+            Giriş Yap
+          </Link>
+        )}
+      </div>
+
       <div className="w-full max-w-md space-y-8 text-center">
         <div className="space-y-2">
           <h1 className="text-5xl font-bold tracking-tighter text-red-600">KATİL KİM?</h1>
@@ -177,16 +303,25 @@ export default function Home() {
         </div>
 
         <div className="grid gap-4 p-6 border border-neutral-800 rounded-2xl bg-neutral-900/50 backdrop-blur-sm">
-          <div className="space-y-2 text-left">
-            <label className="text-xs font-bold text-neutral-500 uppercase ml-1">Dedektif İsmi</label>
-            <input
-              type="text"
-              placeholder="İSMİNİZ"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors"
-            />
-          </div>
+          {!session && (
+            <div className="space-y-2 text-left">
+              <label className="text-xs font-bold text-neutral-500 uppercase ml-1">Dedektif İsmi</label>
+              <input
+                type="text"
+                placeholder="İSMİNİZ"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors"
+              />
+            </div>
+          )}
+
+          {session && (
+            <div className="text-left bg-green-900/20 border border-green-900/30 p-4 rounded-xl">
+              <p className="text-green-400 text-sm font-bold">Hoşgeldin, {username}</p>
+              <p className="text-xs text-green-400/70">Dedektiflik kimliğin doğrulandı.</p>
+            </div>
+          )}
 
           <div className="h-px bg-neutral-800 my-2" />
 
