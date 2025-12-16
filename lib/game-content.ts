@@ -1,4 +1,4 @@
-import { Clue, EvidenceCombination } from '@/types/game';
+import { Case, Suspect, Clue, TimelineEvent, EvidenceCombination } from '@/types';
 
 export const CASE_1 = {
     id: 'case-1',

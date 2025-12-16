@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Katil Kim? Dashboard</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Playfair+Display:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#dc2828",
+                        "primary-glow": "#ff4d4d",
+                        "background-dark": "#0f0f0f",
+                        "background-card": "#1a1a1a",
+                        "gold-muted": "#d4af37",
+                        "border-dark": "#333333",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "serif": ["Playfair Display", "serif"],
+                    },
+                    boxShadow: {
+                        "neon": "0 0 10px rgba(220, 40, 40, 0.5)",
+                        "glass": "0 4px 30px rgba(0, 0, 0, 0.1)",
+                        "polaroid": "0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3)",
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }.bg-pattern {
+            background-color: #0f0f0f;
+            background-image: radial-gradient(#1f1f1f 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark text-white font-display antialiased selection:bg-primary selection:text-white min-h-screen relative overflow-x-hidden pb-32 bg-pattern">
+<header class="sticky top-0 z-40">
+<div class="bg-background-dark/80 backdrop-blur-xl border-b border-border-dark relative z-20">
+<div class="flex items-center justify-between px-4 py-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">fingerprint</span>
+<h1 class="font-serif text-xl font-bold tracking-tight text-white leading-none">
+                        Katil <span class="text-primary">Kim?</span>
+</h1>
+</div>
+<div class="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full bg-gradient-to-r from-gray-900 via-[#1a1a1a] to-gray-900 border border-gold-muted/20 shadow-lg">
+<div class="flex flex-col items-end pr-2 leading-tight">
+<span class="text-[9px] uppercase tracking-widest text-gold-muted/80 font-bold">Rol</span>
+<span class="text-xs font-serif font-bold text-white">Baş Dedektif</span>
+</div>
+<div class="relative">
+<div class="size-8 rounded-full bg-cover bg-center border border-gold-muted/40" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBiG3gUQmTW1rGrT5V9_9RPn3_pmaMWld4fOm3AYD1AY0IFVwcyB2fmmxtOjYNdp4moYGfmGoLYuDVPRawQrg_KvBdSl8tPkV03Cqug8RPBvtx5HjY2ntOP87OJiMkMfxWXBy_uZ3qYdWGLYg8oz-rXSQ_hs9pi1KXL3rq5ULn-6uWvTfMI1mXF6MDXUZSJQYiHG3fZAShLQKpM-itqJ2JjOIrT2aSYXKnc4NDu9jdqKEWVqoGQA5ph82vw6idDzTOxYQxO3KHVpes");'></div>
+<div class="absolute bottom-0 right-0 size-2.5 bg-green-500 rounded-full border-2 border-[#1a1a1a]"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="absolute top-[100%] left-0 right-0 flex justify-center -mt-3 z-10">
+<div class="bg-primary/10 backdrop-blur-md border border-primary/20 rounded-b-xl px-5 py-1 shadow-neon flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-base animate-pulse">timer</span>
+<span class="text-sm font-mono font-bold tracking-widest text-red-100 tabular-nums">00:45:00</span>
+</div>
+</div>
+</header>
+<main class="flex flex-col gap-6 px-4 pt-8">
+<section>
+<div class="flex justify-between items-end mb-3">
+<h3 class="font-serif text-lg text-white font-bold flex items-center gap-2">
+<span class="w-1 h-4 bg-primary rounded-full"></span>
+                    Şüpheliler
+                </h3>
+<span class="text-[10px] text-gray-500 uppercase tracking-wide font-medium">4 KİŞİ</span>
+</div>
+<div class="w-full overflow-x-auto hide-scrollbar -mx-4 px-4 pb-4">
+<div class="flex gap-4">
+<div class="flex flex-col w-20 shrink-0 gap-1 group cursor-pointer">
+<div class="relative w-full aspect-[3/4] rounded-lg overflow-hidden border border-border-dark shadow-lg group-hover:border-primary/50 transition-all">
+<div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent z-10"></div>
+<div class="w-full h-full bg-center bg-cover" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBGHOVhpil3RcsWJrB1g971wFSgaB0DOKBLAowibWzJEm1V3bomCewp72StNSALZUEC3tPoASYa5QKFDZNR_EtngLVTbSB1AExelkorpH2LP-avRLxwGikqVX-Ev_yj1fF64q1c1RGlM3zHGtgrTYj-7JsQyUgCA7J-Q9JFw3vrKfLUy8ny4MF4TtVr4CysermqdtpGUt8ULrdR4gjKY65aPpufw3ybQPxG6vTJhWWsV5aSQmFyqLC7-OKtnUD07rHHGSj0OU1w4b4");'></div>
+<span class="absolute bottom-1 left-0 right-0 text-center text-gray-200 font-serif text-[10px] z-20">Kâhya</span>
+</div>
+</div>
+<div class="flex flex-col w-20 shrink-0 gap-1 group cursor-pointer">
+<div class="relative w-full aspect-[3/4] rounded-lg overflow-hidden border border-primary shadow-[0_0_15px_rgba(220,40,40,0.3)] ring-1 ring-primary">
+<div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent z-10"></div>
+<div class="w-full h-full bg-center bg-cover" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBDaTCpV6oP3JB_Jz11LdKc6P-f5ZDwa0tuPVuxXZd5UgUWlsWPR71LHcz2l_I2d1Z0dP0vPt5VpHdh2y7vPpQe47uy1TktBHZy12qBHFCrI_ug3c0Ndrs1vvV-5k9yKEA9VQ0oMGVX_EHX93yVAvK05OGRctiQeM63N1D4TAn1HthyVBwdE6qfZs4v19_2HS4uTv3BAC0dduKhvjbmDwIu3xb1mhGH5EKnjY8xgA9KD9tCIhBr0ytNeqq01L-jGqniDtiH_mOpbAQ");'></div>
+<span class="absolute bottom-1 left-0 right-0 text-center text-white font-serif text-[10px] z-20 font-bold">Eş</span>
+<div class="absolute top-1 right-1 z-20 size-1.5 bg-primary rounded-full animate-ping"></div>
+<div class="absolute top-1 right-1 z-20 size-1.5 bg-primary rounded-full"></div>
+</div>
+</div>
+<div class="flex flex-col w-20 shrink-0 gap-1 group cursor-pointer">
+<div class="relative w-full aspect-[3/4] rounded-lg overflow-hidden border border-border-dark shadow-lg group-hover:border-primary/50 transition-all">
+<div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent z-10"></div>
+<div class="w-full h-full bg-center bg-cover" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDbnG4J9-ImmHvCu-YIbqytNz_-Q_NMQmZaJXHTJ1uC59O5wT7QJt-_-RjtoMjN3hS9EyhCClbqWamcadij4D_adD6IgXXkJaP1m_Asxpw8BxlGuphQXmRtX1YMQWdNqAl38GS6nbKNxt_xGGhJvL511Dt5n0LnratMLlABeZhfdMScrkRAqgFgBmccLKo1gonzIlyAFeo-iEGl5A6QrHeAX_RoM3xc3XXY_oOnAuU5xEnBPtWZVJ0_MUP9ZmPKRcDJ03ZsZnid27Y");'></div>
+<span class="absolute bottom-1 left-0 right-0 text-center text-gray-200 font-serif text-[10px] z-20">Ortak</span>
+</div>
+</div>
+<div class="flex flex-col w-20 shrink-0 gap-1 group cursor-pointer opacity-50 grayscale">
+<div class="relative w-full aspect-[3/4] rounded-lg overflow-hidden border border-border-dark bg-[#1a1a1a] flex items-center justify-center">
+<span class="material-symbols-outlined text-gray-600 text-2xl">question_mark</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section>
+<h3 class="font-serif text-lg text-white font-bold mb-4 flex items-center gap-2">
+<span class="w-1 h-4 bg-primary rounded-full"></span>
+                Kanıt Panosu
+            </h3>
+<div class="grid grid-cols-2 gap-4">
+<div class="relative group cursor-grab active:cursor-grabbing transform rotate-[-2deg] hover:rotate-0 transition-transform duration-300 z-10 hover:z-20">
+<div class="absolute -top-2 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-red-800 shadow shadow-black/50 z-20 border border-white/20"></div>
+<div class="bg-[#f0f0f0] p-2 pb-6 rounded shadow-polaroid">
+<div class="aspect-square bg-gray-900 overflow-hidden relative shadow-inner mb-2 filter sepia-[0.3]">
+<div class="w-full h-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDr99fD_WilAFjoOok7lRmK0ZGhy1neMG_rYYJI0SHfDRiZPn8QcE9ANIfO-LbDh0y-SUZFgE4R8LD_FpCoiALRyjFtwl_mWCCFz3GkXD6uU-Pa9NfxCnbclPU852SfVWWfUqqjDI3pBT3YPp-WINu04vXbXQUdkbhXzXs-ntZKuhf2VJRtUxbLusYXpzAP96o0rj8adM8wyRV92z_M3U_gdVYfIRuYH2-J8vpOZS0oJmIl3xAN9s6oPiZ_NmTk99o6Cqdt4E9F1VI");'></div>
+<div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/20"></div>
+</div>
+<div class="text-center px-1">
+<h4 class="font-serif text-gray-900 text-xs font-bold uppercase tracking-wider">Kanlı Bıçak</h4>
+<p class="font-mono text-[9px] text-gray-500 mt-0.5">Mutfak</p>
+</div>
+</div>
+</div>
+<div class="relative group cursor-grab active:cursor-grabbing transform rotate-[1deg] hover:rotate-0 transition-transform duration-300 z-10 hover:z-20">
+<div class="absolute -top-2 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-red-800 shadow shadow-black/50 z-20 border border-white/20"></div>
+<div class="bg-[#f0f0f0] p-2 pb-6 rounded shadow-polaroid">
+<div class="aspect-square bg-gray-900 overflow-hidden relative shadow-inner mb-2 filter sepia-[0.2]">
+<div class="w-full h-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBprNMx6skQQ5YZo_mpB51nbLl09ynullI_XIHming4Aeyke89tVYfMx3lNrniGxo7DRYY8Ykcj6hA0-MbKjtJL87AmjoHrRcK3lM7tVxn-KS_ZLpRdlaxr2B1tbpf9K68R-FLFo3edqnOfIqMrYHDQyC7lTubR_tYCIy7tKCjQGNHAPrDYRKmhscePADaTdgXVq2dZu9UioG1UKHHND693eHqTKmjxiZ_ndpF7YDgaAwp733DyAj4z0He8QEf3_RbuGA1810xB0dM");'></div>
+</div>
+<div class="text-center px-1">
+<h4 class="font-serif text-gray-900 text-xs font-bold uppercase tracking-wider">Not</h4>
+<p class="font-mono text-[9px] text-gray-500 mt-0.5">Kütüphane</p>
+</div>
+</div>
+</div>
+<div class="relative opacity-80">
+<div class="bg-[#2a2a2a] border border-dashed border-gray-600 p-2 pb-4 rounded shadow-lg h-full flex flex-col">
+<div class="aspect-square bg-black/40 rounded flex items-center justify-center mb-2 border border-white/5">
+<span class="material-symbols-outlined text-gray-500 text-3xl">lock</span>
+</div>
+<div class="text-center mt-auto">
+<h4 class="font-display text-gray-500 text-xs font-medium tracking-wider">KİLİTLİ</h4>
+</div>
+</div>
+</div>
+<div class="relative opacity-80">
+<div class="bg-[#2a2a2a] border border-dashed border-gray-600 p-2 pb-4 rounded shadow-lg h-full flex flex-col">
+<div class="aspect-square bg-black/40 rounded flex items-center justify-center mb-2 border border-white/5">
+<span class="material-symbols-outlined text-gray-500 text-3xl">lock</span>
+</div>
+<div class="text-center mt-auto">
+<h4 class="font-display text-gray-500 text-xs font-medium tracking-wider">KİLİTLİ</h4>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section>
+<div class="bg-[#151515] rounded-xl p-0.5 shadow-lg border border-border-dark overflow-hidden relative">
+<div class="bg-[#1a1a1a] px-4 py-2 flex justify-between items-center border-b border-white/5">
+<h3 class="font-serif text-white font-bold text-sm">Laboratuvar</h3>
+<div class="flex items-center gap-1">
+<span class="size-1.5 rounded-full bg-green-500 animate-pulse"></span>
+<span class="text-[9px] text-gray-400 uppercase tracking-wide">Analiz Hazır</span>
+</div>
+</div>
+<div class="p-4 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]">
+<div class="flex items-center gap-3 mb-4">
+<div class="flex-1 aspect-[4/3] rounded border-2 border-dashed border-gray-700 bg-black/30 flex flex-col items-center justify-center text-gray-500 group hover:border-primary/50 transition-colors cursor-pointer">
+<span class="material-symbols-outlined mb-1 group-hover:text-primary transition-colors">upload_file</span>
+<span class="text-[9px]">Kanıt A</span>
+</div>
+<span class="material-symbols-outlined text-gray-600 text-sm">add</span>
+<div class="flex-1 aspect-[4/3] rounded border-2 border-dashed border-gray-700 bg-black/30 flex flex-col items-center justify-center text-gray-500 group hover:border-primary/50 transition-colors cursor-pointer">
+<span class="material-symbols-outlined mb-1 group-hover:text-primary transition-colors">upload_file</span>
+<span class="text-[9px]">Kanıt B</span>
+</div>
+</div>
+<button class="w-full bg-gradient-to-r from-red-900 to-red-700 hover:from-red-800 hover:to-red-600 border border-red-500/30 text-white font-bold py-3 rounded shadow-neon transition-all flex items-center justify-center gap-2 group relative overflow-hidden">
+<div class="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></div>
+<span class="material-symbols-outlined group-hover:rotate-12 transition-transform">science</span>
+<span class="tracking-widest text-xs">BİRLEŞTİR &amp; ANALİZ ET</span>
+</button>
+</div>
+</div>
+</section>
+<section class="pb-10 opacity-75">
+<div class="flex gap-3 items-start p-3 rounded-lg bg-[#1a1a1a] border border-border-dark border-l-2 border-l-blue-500">
+<div class="size-7 rounded-full bg-blue-900/30 text-blue-400 flex items-center justify-center shrink-0 border border-blue-900/50">
+<span class="material-symbols-outlined text-xs">info</span>
+</div>
+<div class="flex-1">
+<p class="text-[10px] text-gray-400 font-mono mb-0.5">Timeline • 14:02</p>
+<p class="text-xs text-gray-300">Dedektif Selin <span class="text-white font-bold">Eski Günlük</span> kanıtını incelemeye aldı.</p>
+</div>
+</div>
+</section>
+</main>
+<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-[400px] z-50">
+<div class="relative bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.5)] px-2 h-16 flex items-center justify-between">
+<button class="flex-1 flex flex-col items-center justify-center h-full relative group gap-1">
+<span class="material-symbols-outlined text-white transition-transform group-active:scale-95 filled" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="text-[9px] font-medium text-white tracking-wide">Pano</span>
+<div class="absolute bottom-2 w-4 h-0.5 bg-primary shadow-[0_0_10px_2px_rgba(220,40,40,0.6)] rounded-full"></div>
+</button>
+<button class="flex-1 flex flex-col items-center justify-center h-full gap-1 text-gray-500 hover:text-gray-300 transition-colors group">
+<span class="material-symbols-outlined group-active:scale-95">map</span>
+<span class="text-[9px] font-medium tracking-wide">Harita</span>
+</button>
+<div class="relative w-16 flex justify-center">
+<button class="absolute -top-6 w-14 h-14 rounded-full bg-gradient-to-br from-primary to-[#8b0000] border-4 border-background-dark shadow-[0_0_20px_rgba(220,40,40,0.4)] flex items-center justify-center text-white z-50 group hover:scale-105 active:scale-95 transition-all duration-300">
+<span class="absolute inset-0 rounded-full bg-primary animate-ping opacity-20"></span>
+<span class="material-symbols-outlined text-2xl group-hover:text-white">mic</span>
+</button>
+</div>
+<button class="flex-1 flex flex-col items-center justify-center h-full gap-1 text-gray-500 hover:text-gray-300 transition-colors group">
+<span class="material-symbols-outlined group-active:scale-95">forum</span>
+<span class="text-[9px] font-medium tracking-wide">Sohbet</span>
+</button>
+<button class="flex-1 flex flex-col items-center justify-center h-full gap-1 text-gray-500 hover:text-gray-300 transition-colors group">
+<span class="material-symbols-outlined group-active:scale-95">settings</span>
+<span class="text-[9px] font-medium tracking-wide">Ayarlar</span>
+</button>
+</div>
+</nav>
+
+</body></html>

@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, Loader2, LogIn } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LoginPage() {
@@ -35,63 +34,96 @@ export default function LoginPage() {
     };
 
     return (
-        <main className="min-h-screen bg-black text-white p-6 flex flex-col items-center justify-center relative overflow-hidden">
-            {/* Background Effects */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-neutral-900 via-black to-black -z-10" />
+        <main className="min-h-screen bg-pattern text-white p-6 flex flex-col items-center justify-center relative overflow-hidden">
+            {/* Ambient Background Effects */}
+            <div className="fixed inset-0 pointer-events-none z-0">
+                <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-[#dc2828]/10 rounded-full blur-[120px] animate-pulse-slow"></div>
+                <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#d4af37]/5 rounded-full blur-[100px] animate-pulse-slow" style={{ animationDelay: '1.5s' }}></div>
+            </div>
 
-            <Link href="/" className="absolute top-8 left-8 text-neutral-400 hover:text-white transition-colors flex items-center gap-2">
-                <ArrowLeft className="w-5 h-5" />
+            <Link href="/" className="absolute top-8 left-8 text-gray-400 hover:text-white transition-all flex items-center gap-2 group z-10">
+                <span className="material-symbols-outlined group-hover:-translate-x-1 transition-transform">arrow_back</span>
                 Ana Menü
             </Link>
 
-            <div className="w-full max-w-md space-y-8">
-                <div className="text-center">
-                    <h1 className="text-4xl font-black tracking-tighter text-red-600 mb-2">GİRİŞ YAP</h1>
-                    <p className="text-neutral-400">Dedektif kimliğinize erişin.</p>
+            <div className="w-full max-w-md space-y-8 relative z-10">
+                {/* Header */}
+                <div className="text-center space-y-4">
+                    <div className="inline-flex items-center gap-2 bg-[#dc2828]/10 border border-[#dc2828]/30 px-4 py-1.5 rounded-full text-sm text-[#ff4d4d]">
+                        <span className="material-symbols-outlined text-base">badge</span>
+                        <span>Dedektif Kimliği</span>
+                    </div>
+                    <h1 className="font-[family-name:var(--font-playfair)] text-4xl font-bold text-gradient tracking-tight">GİRİŞ YAP</h1>
+                    <p className="text-gray-400">Dedektif kimliğinize erişin.</p>
                 </div>
 
-                <form onSubmit={handleLogin} className="space-y-4">
+                {/* Login Form */}
+                <form onSubmit={handleLogin} className="glass-card rounded-2xl p-6 space-y-4">
                     {error && (
-                        <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl text-red-200 text-sm">
+                        <div className="bg-[#dc2828]/10 border border-[#dc2828]/30 p-4 rounded-xl text-[#ff4d4d] text-sm flex items-center gap-2">
+                            <span className="material-symbols-outlined text-lg">error</span>
                             {error}
                         </div>
                     )}
 
                     <div className="space-y-4">
-                        <input
-                            type="email"
-                            required
-                            placeholder="E-posta Adresi"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors"
-                        />
-                        <input
-                            type="password"
-                            required
-                            placeholder="Şifre"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 focus:outline-none focus:border-red-600 transition-colors"
-                        />
+                        <div className="space-y-2">
+                            <label className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase ml-1">
+                                <span className="material-symbols-outlined text-sm text-[#dc2828]">mail</span>
+                                E-posta Adresi
+                            </label>
+                            <input
+                                type="email"
+                                required
+                                placeholder="dedektif@example.com"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full bg-black/50 border border-[#333] rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#dc2828] focus:shadow-neon transition-all placeholder:text-gray-600"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase ml-1">
+                                <span className="material-symbols-outlined text-sm text-[#dc2828]">lock</span>
+                                Şifre
+                            </label>
+                            <input
+                                type="password"
+                                required
+                                placeholder="••••••••"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full bg-black/50 border border-[#333] rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#dc2828] focus:shadow-neon transition-all placeholder:text-gray-600"
+                            />
+                        </div>
                     </div>
 
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-red-900/20 flex items-center justify-center gap-2"
+                        className="w-full bg-gradient-to-r from-[#8b0000] to-[#dc2828] hover:from-[#a00] hover:to-[#e63333] disabled:opacity-50 text-white font-bold py-4 rounded-xl shadow-neon transition-all flex items-center justify-center gap-3 group relative overflow-hidden"
                     >
-                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogIn className="w-5 h-5" />}
-                        Giriş Yap
+                        <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></div>
+                        {loading ? (
+                            <div className="w-5 h-5 border-2 border-white/30 rounded-full animate-spin border-t-white"></div>
+                        ) : (
+                            <span className="material-symbols-outlined">login</span>
+                        )}
+                        <span className="tracking-wide">Giriş Yap</span>
                     </button>
                 </form>
 
-                <div className="text-center text-sm text-neutral-500">
+                {/* Register Link */}
+                <div className="text-center text-sm text-gray-500">
                     Hesabınız yok mu?{' '}
-                    <Link href="/register" className="text-red-400 hover:text-red-300 font-bold">
+                    <Link href="/register" className="text-[#dc2828] hover:text-[#ff4d4d] font-bold transition-colors">
                         Kayıt Ol
                     </Link>
                 </div>
+            </div>
+
+            {/* Decorative Elements */}
+            <div className="fixed bottom-8 right-8 opacity-10 pointer-events-none">
+                <span className="material-symbols-outlined text-8xl text-[#dc2828]">fingerprint</span>
             </div>
         </main>
     );
